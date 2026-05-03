@@ -1,50 +1,49 @@
 #!/bin/bash
 
-#take *gpu_temperature.log file as argument
+NODE_DATE=$1
 
-#LOGFILE=$1
-
-#if [ -z "$LOGFILE" ]; then
-#	echo "Usage: $0 <logfile>_gpu_temperature.log"
-#	exit 1
-#fi
-
-#accept more than 2 logs
-if [ $# -eq 0 ]; then
-	echo "Usage: $0 <logfile1>_gpu_temperature.log [logfile2 ...]"
+if [ -z "$NODE_DATE" ]; then
+	echo "Usage: $0 <hostname_date_time>"
+	echo "Example: $0 knod2-8-19_20260503_151203"
 	exit 1
 fi
 
-#echo "GPU | Serial Number | HW_THERM | SW_THERM | HW_SLOW  | GPU_TEMP | MEM_TEMP"
-echo "GPU | Serial Number | BUS_ID | HW_THERM | SW_THERM | HW_SLOW | GPU_MAXTEMP | MEM_MAXTEMP"
-echo "-----------------------------------------------------------------------------------------"
+echo "GPU | Serial Number | BUS_ID | HW_THERM | SW_THERM | HW_SLOW | GPU_MAXTEMP | MEM_MAXTEMP |   GFLOPS   "
+echo "-------------------------------------------------------------------------------------------------------"
 
-awk -F', ' '
-{
-    idx = $1
-    sn  = $2
+GPU=$(ls -1 | grep -Eo "${NODE_DATE}_GPU[0-9]+" | uniq | sort)
 
-    #add bus_id
-    bus_id[sn] = $3
+for i in GPU; do
+	GPU_GFLOPS=$(cat "${i}_nvidia_hpl.txt" | grep WC0 | awk '{print $7}')
 
-    #if hwts,swts,hws for a serial is active, do increment
-    hw[sn] += ($8  == "Active" ? 1 : 0)
-    sw[sn] += ($9  == "Active" ? 1 : 0)
-    hs[sn] += ($10 == "Active" ? 1 : 0)
+	awk -v GPU_GFLOPS="$GPU_GFLOPS" -F', ' '
+  {
+      idx = $1
+      sn  = $2
+  
+      #add bus_id
+      bus_id[sn] = $3
+  
+      #if hwts,swts,hws for a serial is active, do increment
+      hw[sn] += ($8  == "Active" ? 1 : 0)
+      sw[sn] += ($9  == "Active" ? 1 : 0)
+      hs[sn] += ($10 == "Active" ? 1 : 0)
+  
+      #if current gpu/mem temp is higher than the max gpu/mem temp, it become the max gpu/mem temp
+      max_gpu_temp[sn] = ($4 >= max_gpu_temp[sn] ? $4 : max_gpu_temp[sn])
+      max_mem_temp[sn] = ($5 >= max_mem_temp[sn] ? $5 : max_mem_temp[sn])
+  
+      # Map index to serial
+      serial[idx] = sn
+  }
+  END {
+      for (i=0; i<=7; i++) {
+          sn = serial[i]
+          split(bus_id[sn], trim_bus, ":")
+          if (sn != "") {
+              printf " %d  | %-13s | %6s | %8d | %8d | %7d | %11d | %11d | %-9s\n", i, sn, trim_bus[2], hw[sn], sw[sn], hs[sn], max_gpu_temp[sn], max_mem_temp[sn], GPU_GFLOPS
+          }
+      }
+  }' "$i"
 
-    #if current gpu/mem temp is higher than the max gpu/mem temp, it become the max gpu/mem temp
-    max_gpu_temp[sn] = ($4 >= max_gpu_temp[sn] ? $4 : max_gpu_temp[sn])
-    max_mem_temp[sn] = ($5 >= max_mem_temp[sn] ? $5 : max_mem_temp[sn])
-
-    # Map index to serial
-    serial[idx] = sn
-}
-END {
-    for (i=0; i<=7; i++) {
-        sn = serial[i]
-        split(bus_id[sn], trim_bus, ":")
-        if (sn != "") {
-            printf " %d  | %-13s | %6s | %8d | %8d | %7d | %11d | %11d\n", i, sn, trim_bus[2], hw[sn], sw[sn], hs[sn], max_gpu_temp[sn], max_mem_temp[sn]
-        }
-    }
-}' "$@"
+done
