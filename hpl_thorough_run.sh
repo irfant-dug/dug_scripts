@@ -3,21 +3,17 @@
 #The purpose of this script is to get per node and per GPU HPL result
 #and analyze which gpu is throttling
 
-cd /data/kl7/dug/IT/h200_hpl
-module load apptainer cuda/13.1
-mkdir -p /tmp/hpl
-sudo chmod 770 /tmp/hpl #avoid hpl from breaking if dir exist and no g+rw
-export APPTAINERENV_TMPDIR="/tmp/hpl"
-
 #different log location for KL and Houston
 if [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "knod" ]]; then
 	echo "Running for KL H200 Node"
+	WORKING_DIR="/data/kl7/dug/IT/h200_hpl"
 	LOG_LOCATION="/data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605"
 	CONTAINER_LOCATION="/data/kl7/dug/IT/h200_hpl/hpc-benchmarks_26.02.sif"
 	SINGLE_GPU_DAT="/data/kl7/dug/IT/h200_hpl/HPL-H200-1GPU.dat"
 
 elif [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "hnod" ]]; then
 	echo "Running for Houston H200 Node"
+	WORKING_DIR="/h7/dug/IT/h200_hpl"
 	LOG_LOCATION="/h7/dug/IT/h200_hpl/logs/hpl_run_202605"
 	CONTAINER_LOCATION="/h7/dug/IT/h200_hpl/hpc-benchmarks_26.02.sif"
 	SINGLE_GPU_DAT="/h7/dug/IT/h200_hpl/HPL-H200-1GPU.dat"
@@ -25,6 +21,12 @@ else
 	echo "Run this either in knod or hnod"
 	exit
 fi
+
+cd ${WORKING_DIR}
+module load apptainer cuda/13.1
+mkdir -p /tmp/hpl
+sudo chmod 770 /tmp/hpl #avoid hpl from breaking if dir exist and no g+rw
+export APPTAINERENV_TMPDIR="/tmp/hpl"
 
 #create a node dir for the node results
 mkdir -p ${LOG_LOCATION}/${HOSTNAME}
