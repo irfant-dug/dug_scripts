@@ -29,7 +29,7 @@ done
 for i in $(seq 0 7); do
 	echo "Running GPU${i} HPL"
 	echo -e "--------------------\n"
-	apptainer run --nv -B /d/sw/cuda,/tmp/hpl /data/kl7/dug/IT/h200_hpl/single-gpu-hpc-benchmarks_26.02.sif mpirun -np 1 /workspace/hpl.sh --dat /data/kl7/dug/IT/h200_hpl/HPL-H200-1GPU.dat --no-multinode --gpu-affinity $i |
+	apptainer run --nv -B /d/sw/cuda,/tmp/hpl /data/kl7/dug/IT/h200_hpl/hpc-benchmarks_26.02.sif mpirun -np 1 /workspace/hpl.sh --dat /data/kl7/dug/IT/h200_hpl/HPL-H200-1GPU.dat --no-multinode --gpu-affinity $i |
 		tee /data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605/${HOSTNAME}/${HOSTNAME}_${DATE}_GPU${i}_nvidia_hpl.txt &
 	HPL_PID=$!
 	while kill -0 $HPL_PID 2>/dev/null; do
@@ -40,4 +40,5 @@ for i in $(seq 0 7); do
 done
 
 #run analysis and generate report
-#ls -1 knod2-5-19/*GPU*gpu_temp* | tr '\n' ' ' | sed 's/ $/\n/' | xargs which_gpu_is_throttling.sh
+/d/admin/scripts/hpl_log_analysis.sh /data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605/${HOSTNAME}/${HOSTNAME}_${DATE} |
+	tee /data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605/${HOSTNAME}/${HOSTNAME}_${DATE}_analysis_result.txt
