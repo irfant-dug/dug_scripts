@@ -14,7 +14,7 @@ echo "--------------------------------------------------------------------------
 GPU=$(ls -1 ${NODE_DATE}* | grep -Eo "${NODE_DATE}_GPU[0-9]+" | uniq | sort)
 
 for i in $GPU; do
-	GPU_GFLOPS=$(cat "${i}_nvidia_hpl.txt" | grep WC0 | awk '{print $7}')
+	GPU_GFLOPS=$(cat "${i}_nvidia_hpl.txt" | grep WC0 | tail -1 | awk '{print $7}')
 
 	awk -v GPU_GFLOPS="$GPU_GFLOPS" -F', ' '
   {
