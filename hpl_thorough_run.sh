@@ -56,6 +56,8 @@ for i in $(seq 0 7); do
 			tee -a ${LOG_LOCATION}/${HOSTNAME}/${HOSTNAME}_${DATE}_GPU${i}_gpu_temperature.txt >/dev/null
 		sleep 1s
 	done
+	#adding sleep to avoid error
+	sleep 3
 done
 
 #run analysis and generate report
