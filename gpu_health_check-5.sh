@@ -191,11 +191,20 @@ if [[ -n "$DEGRADED_LIST" ]]; then
 fi
 
 echo
-date +%Y%m%d_%H%M%S | tee -a /data/kl7/dug/IT/h200_hpl/logs/check_health/$HOSTNAME.txt
-echo | tee -a /data/kl7/dug/IT/h200_hpl/logs/check_health/$HOSTNAME.txt
+
+#Logging---------------------------------------------------------
+#different log location for KL and Houston
+if [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "knod" ]]; then
+	LOGGING_LOCATION="/data/kl7/dug/IT/h200_hpl/logs/check_health"
+
+elif [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "hnod" ]]; then
+	LOGGING_LOCATION="/h7/dug/IT/h200_hpl/logs/check_health"
+fi
+date +%Y%m%d_%H%M%S | tee -a $LOGGING_LOCATION/$HOSTNAME.txt
 echo
-nvidia-smi --query-gpu=serial,gpu_bus_id --format=csv,noheader | sed 's/00000000://' | sort -V | tee -a /data/kl7/dug/IT/h200_hpl/logs/check_health/$HOSTNAME.txt
-echo | tee -a /data/kl7/dug/IT/h200_hpl/logs/check_health/$HOSTNAME.txt
+nvidia-smi --query-gpu=serial,gpu_bus_id --format=csv,noheader | sed 's/00000000://' | sort -V | tee >(wc -l) | tee -a $LOGGING_LOCATION/$HOSTNAME.txt
+echo | tee -a $LOGGING_LOCATION/$HOSTNAME.txt
+#Logging---------------------------------------------------------
 
 # -------------------------------------------------
 # Final result
