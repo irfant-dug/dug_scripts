@@ -13,6 +13,7 @@ while true; do
 			xargs -I {} scontrol show hostname {}
 	)
 	NUMBER_OF_MAINT_NODES=$(echo -e "$QUERY" | grep -v '^$' | wc -l)
+	echo -e "$QUERY"
 	if [[ "$NUMBER_OF_MAINT_NODES" -ge 3 ]]; then
 
 		LEFT=$(echo -e "$QUERY" | head -n "$N" | tr '\n' ',' | sed 's/,$/\n/')
