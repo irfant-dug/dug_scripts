@@ -9,12 +9,12 @@ while true; do
 	#get the nodes in the reservation that are in maint state
 	QUERY=$(
 		scontrol show ReservationName="${RESERVATION}" | grep Nodes | awk '{print $1}' | sed 's/Nodes=//' |
-			xargs -I {} scontrol show hostname {} | tr '\n' ',' | sed 's/,$/\n/' | xargs -I {} sinfo -p h200 -n {} | grep maint | awk '{print $6}' |
+			xargs -I {} scontrol show hostname {} | tr '\n' ',' | sed 's/,$/\n/' | xargs -I {} sinfo -p all -n {} | grep maint | awk '{print $6}' |
 			xargs -I {} scontrol show hostname {}
 	)
 	NUMBER_OF_MAINT_NODES=$(echo -e "$QUERY" | grep -v '^$' | wc -l)
 	echo -e "$QUERY"
-	if [[ "$NUMBER_OF_MAINT_NODES" -ge 3 ]]; then
+	if [[ "$NUMBER_OF_MAINT_NODES" -ge "$N" ]]; then
 
 		LEFT=$(echo -e "$QUERY" | head -n "$N" | tr '\n' ',' | sed 's/,$/\n/')
 		echo "$LEFT"
