@@ -5,10 +5,10 @@
 #RESERVATION="#317966 applying graphite 1"
 #N=3
 
-RESERVATION=$1
+RESERVATION="${1}"
 N=$2
 
-if [ -z "$NODE_DATE" ]; then
+if [[ -z "$RESERVATION" && -z "$N" ]]; then
 	echo "Usage: $0 <hostname_date_time>"
 	echo "Example: $0 /data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605/knod2-8-19/knod2-8-19_20260503_151203"
 	exit 1
