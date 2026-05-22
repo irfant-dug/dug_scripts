@@ -2,8 +2,17 @@
 #Given a reservation have reserved many nodes in advanced,
 #this scripts release the remaining nodes when N nodes have gone into maint state
 
-RESERVATION="#317966 applying graphite 1"
-N=3
+#RESERVATION="#317966 applying graphite 1"
+#N=3
+
+RESERVATION=$1
+N=$2
+
+if [ -z "$NODE_DATE" ]; then
+	echo "Usage: $0 <hostname_date_time>"
+	echo "Example: $0 /data/kl7/dug/IT/h200_hpl/logs/hpl_run_202605/knod2-8-19/knod2-8-19_20260503_151203"
+	exit 1
+fi
 
 while true; do
 	#get the nodes in the reservation that are in maint state
@@ -23,5 +32,5 @@ while true; do
 		#break when more than N nodes are reserved
 		break
 	fi
-	sleep 5m
+	sleep 2m
 done
