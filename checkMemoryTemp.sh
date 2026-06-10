@@ -10,8 +10,8 @@ checkMemoryTemperature() {
         sensors=$(getInfoIPMI)
         _graphite=
         while read line; do 
-            DIMM_POS=$(echo $line | grep -Eo "CPU[0-9]+_DIMM[A-Z0-9]+"); 
-            DIMM_TEMP_VALUE=$(echo $line | awk -F ',' '{print int($3)}') ;
+            DIMM_POS=$(echo "$line" | grep -Eo "CPU[0-9]+_DIMM[A-Z0-9]+"); 
+            DIMM_TEMP_VALUE=$(echo "$line" | awk -F ',' '{print int($3)}') ;
             if [[ $DIMM_TEMP_VALUE -ne 0 ]]; then
                 _graphite="${GRAPHITE_HIERARCHY}.temperature.${DIMM_POS} ${DIMM_TEMP_VALUE} $(date '+%s')\n${_graphite}"
             fi
