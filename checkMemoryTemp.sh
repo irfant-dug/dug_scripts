@@ -19,3 +19,16 @@ checkMemoryTemperature() {
 	    [[ -n $_graphite ]] && toGraphite "${_graphite%%\\n}"
     fi
 }
+
+#include/14-temperature.sh
+checkTemperature() {
+    if [[ $cpu == genoa768 ]]; then
+        while read line; do 
+            DIMM_POS=$(echo "$line" | grep -Eo "CPU[0-9]+_DIMM[A-Z0-9]+"); 
+            DIMM_TEMP_VALUE=$(echo "$line" | awk -F ',' '{print int($3)}') ;
+            if [[ $DIMM_TEMP_VALUE -ne 0 ]]; then
+                _graphite="${GRAPHITE_HIERARCHY}.temperature.${DIMM_POS} ${DIMM_TEMP_VALUE} $(date '+%s')\n${_graphite}"
+            fi
+        done < <(echo "$sensors" | grep -Eo 'CPU[0-9]+_DIMM[A-Z0-9]+_Temp,Temperature,[^,]+')
+    fi
+}
