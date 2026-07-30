@@ -49,7 +49,7 @@ echo
 # -------------------------------------------------
 echo "Checking PCI Bus IDs:"
 
-FOUND_BUSES=$(lspci | awk '{print $1}')
+FOUND_BUSES=$(/usr/sbin/lspci | awk '{print $1}')
 MISSING_BUSES=()
 
 for BUS in "${EXPECTED_BUSES[@]}"; do
@@ -76,7 +76,7 @@ echo
 # -------------------------------------------------
 # GPU count from lspci
 # -------------------------------------------------
-GPU_COUNT_LSPCI=$(lspci | grep -i nvidia | wc -l)
+GPU_COUNT_LSPCI=$(/usr/sbin/lspci | grep -i nvidia | wc -l)
 
 echo "Detected GPUs (lspci): $GPU_COUNT_LSPCI"
 
@@ -195,7 +195,7 @@ echo
 #Logging---------------------------------------------------------
 #different log location for KL and Houston
 if [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "knod" ]]; then
-	LOGGING_LOCATION="/data/kl7/dug/IT/h200_hpl/logs/check_health"
+	LOGGING_LOCATION="/data/kl7/dug/corporate/teamit/h200_health_check"
 
 elif [[ $(echo $HOSTNAME | grep -Eo "[kh]+nod") == "hnod" ]]; then
 	LOGGING_LOCATION="/h7/dug/IT/h200_hpl/logs/check_health"
