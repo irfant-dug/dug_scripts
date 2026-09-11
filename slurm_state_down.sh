@@ -9,5 +9,5 @@ while true; do
 		curl -d "$CURRENT_SLURM_STATE" ntfy.sh/kl_slurm_state
 		OLD_SLURM_STATE="$CURRENT_SLURM_STATE"
 	fi
-	sleep 5m
+	sleep 1m
 done
