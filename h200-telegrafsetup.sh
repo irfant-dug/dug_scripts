@@ -41,6 +41,20 @@ CONFIG=$(cat << 'EOF'
   interval = "15s"         # Set to match actual ipmitool duration to eliminate log warnings
   timeout = "60s"          # Prevents killing ipmitool during slower polling runs
   metric_version = 2
+
+[[inputs.sysstat]]
+  sadc_path = "/usr/lib64/sa/sadc" # required
+  [inputs.sysstat.options]
+    -C = "cpu"
+    -B = "paging"
+    -b = "io"
+    -d = "disk"             # requires DISK activity
+    "-n ALL" = "network"
+    -q = "queue"
+    -r = "mem_util"
+    -S = "swap_util"
+    -u = "cpu_util"
+    -W = "swap"
 EOF
 )
 
